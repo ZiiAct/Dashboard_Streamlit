@@ -35,15 +35,16 @@ with st.sidebar:
     min_date = all_df["datetime"].min().date()
     max_date = all_df["datetime"].max().date()
     
-    date_range = st.date_input(
+date_range = st.date_input(
         label='Pilih Rentang Waktu',
         min_value=min_date, 
         max_value=max_date,
-        value=[min_date, max_date]
+        value=(min_date, max_date)
     )
-    
-    if len(date_range) != 2:
-        st.warning("Silakan pilih tanggal awal dan akhir.")
+        try:
+        start_date, end_date = date_range
+    except ValueError:
+        st.warning("⚠️ Silakan pilih tanggal akhir untuk melanjutkan.")
         st.stop()
         
     start_date, end_date = date_range
