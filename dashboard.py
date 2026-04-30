@@ -9,18 +9,23 @@ sns.set(style='dark')
 
 @st.cache_data
 def load_data():
-    if os.path.exists("main_data.csv.gz"):
-        df = pd.read_csv("main_data.csv.gz", compression="gzip")
-    elif os.path.exists("main_data.zip"):
-        df = pd.read_csv("main_data.zip")
-    elif os.path.exists("main_data.csv"):
-        df = pd.read_csv("main_data.csv")
+    base_dir = os.path.dirname(os.path.abspath(__file__))
+    
+    path_gz = os.path.join(base_dir, "main_data.csv.gz")
+    path_zip = os.path.join(base_dir, "main_data.zip")
+    path_csv = os.path.join(base_dir, "main_data.csv")
+    
+    if os.path.exists(path_gz):
+        df = pd.read_csv(path_gz, compression="gzip")
+    elif os.path.exists(path_zip):
+        df = pd.read_csv(path_zip)
+    elif os.path.exists(path_csv):
+        df = pd.read_csv(path_csv)
     else:
         return None
-    
-    df['datetime'] = pd.to_datetime(df['datetime'])
+        df['datetime'] = pd.to_datetime(df['datetime'])
     return df
-
+    
 all_df = load_data()
 
 if all_df is None:
