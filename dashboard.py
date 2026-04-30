@@ -11,7 +11,7 @@ st.set_page_config(page_title="Air Quality Dashboard", layout="wide")
 file_path = "main_data.csv"
 
 if os.path.exists(file_path):
-    all_df = pd.read_csv(file_path)
+    all_df = pd.read_csv("main_data.zip")
     all_df['datetime'] = pd.to_datetime(all_df['datetime'])
 else:
     st.error(f"File '{file_path}' tidak ditemukan! Pastikan kamu sudah menjalankan 'air_quality_df.to_csv(\"main_data.csv\", index=False)' di Colab dan mengunduhnya.")
