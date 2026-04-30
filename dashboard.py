@@ -2,7 +2,6 @@ import os
 
 st.set_page_config(page_title="Air Quality Dashboard", layout="wide")
 sns.set(style='dark')
-ns.barplot(x='PM2.5', y='station', data=avg_pm25_df.sort_values('PM2.5', ascending=False), palette='viridis', hue='station', legend=False, ax=ax1)
 
 @st.cache_data
 def load_data():
