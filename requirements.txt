@@ -1,4 +1,4 @@
-pandas
-matplotlib
-seaborn
-streamlit
+matplotlib==3.7.1
+pandas==2.2.2
+seaborn==0.13.1
+streamlit==1.41.1
