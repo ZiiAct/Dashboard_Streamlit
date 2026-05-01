@@ -22,13 +22,24 @@ def load_data():
         df = pd.read_csv(path_csv)
     else:
         return None
+        
+    # --- TRIK OPTIMASI MEMORI (HEMAT RAM HINGGA 60%) ---
     df['datetime'] = pd.to_datetime(df['datetime'])
+    df['station'] = df['station'].astype('category') # Ubah teks stasiun jadi kategori
+    
+    # Perkecil ukuran tipe data angka (Downcasting)
+    float_cols = df.select_dtypes(include=['float64']).columns
+    df[float_cols] = df[float_cols].astype('float32')
+    
+    int_cols = df.select_dtypes(include=['int64']).columns
+    df[int_cols] = df[int_cols].astype('int32')
+    
     return df
 
 all_df = load_data()
 
 if all_df is None:
-    st.error("Data tidak ditemukan! Pastikan main_data.csv, main_data.zip, atau main_data.csv.gz ada di repository.")
+    st.error("Data tidak ditemukan! Pastikan file data sudah ada di repository.")
     st.stop()
 
 with st.sidebar:
@@ -36,7 +47,6 @@ with st.sidebar:
     min_date = all_df["datetime"].min().date()
     max_date = all_df["datetime"].max().date()
     
-    # Input tanggal
     date_range = st.date_input(
         label='Pilih Rentang Waktu',
         min_value=min_date, 
@@ -44,29 +54,24 @@ with st.sidebar:
         value=(min_date, max_date)
     )
     
-    # Pengamanan agar error "start_date is not defined" tidak pernah terjadi lagi
     if isinstance(date_range, tuple) and len(date_range) == 2:
         start_date, end_date = date_range
     else:
         start_date, end_date = min_date, max_date
-        st.warning("⚠️ Menunggu kamu memilih tanggal akhir...")
 
-    # Input Stasiun
     stasiun_list = all_df['station'].unique()
     selected_stations = st.multiselect(
         label="Pilih Stasiun",
-        options=stasiun_list,
-        default=stasiun_list
+        options=list(stasiun_list), # Convert category back to list for multiselect
+        default=list(stasiun_list)
     )
 
-# Filtering
 main_df = all_df[
     (all_df["datetime"].dt.date >= start_date) & 
     (all_df["datetime"].dt.date <= end_date) &
     (all_df["station"].isin(selected_stations))
 ]
 
-# Halaman Utama
 st.title('Air Quality Analysis Dashboard 🌬️')
 
 if not main_df.empty:
@@ -84,7 +89,6 @@ if not main_df.empty:
         if not winter_rush_df.empty:
             avg_pm25_df = winter_rush_df.groupby('station')['PM2.5'].mean().reset_index()
             fig1, ax1 = plt.subplots(figsize=(8, 5))
-            # Tambahan hue='station' untuk mengatasi warning seaborn
             sns.barplot(
                 x='PM2.5', y='station', 
                 data=avg_pm25_df.sort_values('PM2.5', ascending=False), 
@@ -94,6 +98,7 @@ if not main_df.empty:
             ax1.set_xlabel("Rata-rata PM2.5")
             ax1.set_ylabel("")
             st.pyplot(fig1)
+            plt.close(fig1) # Tutup plot agar RAM tidak bocor
 
     with col_right:
         st.subheader("Frekuensi PM10 > 150 µg/m³ (Q4 2016)")
@@ -102,7 +107,6 @@ if not main_df.empty:
             freq_df = danger_pm10_df['station'].value_counts().reset_index()
             freq_df.columns = ['station', 'total_jam']
             fig2, ax2 = plt.subplots(figsize=(8, 5))
-            # Tambahan hue='station' untuk mengatasi warning seaborn
             sns.barplot(
                 x='total_jam', y='station', 
                 data=freq_df, 
@@ -111,14 +115,17 @@ if not main_df.empty:
             ax2.set_xlabel("Total Jam Kejadian")
             ax2.set_ylabel("")
             st.pyplot(fig2)
+            plt.close(fig2) # Tutup plot agar RAM tidak bocor
 
     st.divider()
     st.subheader("Hubungan Cuaca dan Polutan")
     num_cols = ['PM2.5', 'PM10', 'SO2', 'NO2', 'CO', 'O3', 'TEMP', 'PRES', 'DEWP', 'RAIN', 'WSPM']
     available_cols = [col for col in num_cols if col in main_df.columns]
     
-    fig3, ax3 = plt.subplots(figsize=(10, 6))
-    sns.heatmap(main_df[available_cols].corr(), annot=True, cmap='coolwarm', fmt=".2f", ax=ax3)
-    st.pyplot(fig3)
+    if available_cols:
+        fig3, ax3 = plt.subplots(figsize=(10, 6))
+        sns.heatmap(main_df[available_cols].corr(), annot=True, cmap='coolwarm', fmt=".2f", ax=ax3)
+        st.pyplot(fig3)
+        plt.close(fig3) # Tutup plot heatmap yang sangat berat
 else:
     st.warning("Data kosong. Ubah filter stasiun/tanggal di menu samping.")
