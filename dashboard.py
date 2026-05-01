@@ -92,7 +92,7 @@ if not main_df.empty:
             sns.barplot(
                 x='PM2.5', y='station', 
                 data=avg_pm25_df.sort_values('PM2.5', ascending=False), 
-                hue='station', palette='viridis', legend=False, ax=ax1
+                hue='station', palette='viridis', legend=False, dodge=False, ax=ax1
             )
             ax1.axvline(x=75, color='red', linestyle='--', label='Batas (75)')
             ax1.set_xlabel("Rata-rata PM2.5")
@@ -110,7 +110,7 @@ if not main_df.empty:
             sns.barplot(
                 x='total_jam', y='station', 
                 data=freq_df, 
-                hue='station', palette='Reds_r', legend=False, ax=ax2
+                hue='station', palette='Reds_r', legend=False, dodge=False, ax=ax2
             )
             ax2.set_xlabel("Total Jam Kejadian")
             ax2.set_ylabel("")
