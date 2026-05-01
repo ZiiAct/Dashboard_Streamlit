@@ -13,14 +13,14 @@ Pastikan Anda sudah mengekstrak file *submission* (atau *clone repository* ini) 
 Sangat disarankan untuk menggunakan *virtual environment* agar instalasi *library* tidak mengganggu sistem Python bawaan komputer Anda. Jalankan perintah berikut di Terminal/CMD:
 ```bash
 python -m venv venv
-
+```
 ## Aktivasi Virtual Environment:
-venv\Scripts\activate
+```venv\Scripts\activate```
 
 ### 3. Install Library (Requirements)
-pip install -r requirements.txt
+```pip install -r requirements.txt```
 
 ### 4. Menjalankan Dashboard
-cd dashboard
-streamlit run dashboard.py
+```cd dashboard```
+```streamlit run dashboard.py```
 
